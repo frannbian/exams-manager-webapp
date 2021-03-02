@@ -1,17 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { lazy, Suspense } from "react";
+import ReactDOM from "react-dom";
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware, compose } from 'redux';
+import reduxThunk from 'redux-thunk';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+import Loader from "./components/layouts/Loader";
+import reducers from './reducers';
+
+const store = createStore(
+    reducers,
+    compose(applyMiddleware(reduxThunk))
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+
+const LazyApp = lazy(() => import("./App"));
+
+ReactDOM.render(
+  <Provider store={store}>
+    <Suspense fallback={<Loader />}>
+      <LazyApp />
+    </Suspense>
+  </Provider>,
+	document.getElementById("root")
+);
